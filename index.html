@@ -175,7 +175,7 @@ body{background:var(--void);color:var(--parch);font-family:var(--f-hand);
       <div class="slots" id="slots" role="group" aria-label="Available times"></div>
       <div class="fields">
         <label for="fName">your name<input id="fName" autocomplete="name" placeholder="Morticia A."></label>
-        <label for="fEmail">email<input id="fEmail" type="email" autocomplete="email" placeholder="you@crypt.com"></label>
+        <label for="fEmail">email<input id="fEmail" type="email" autocomplete="email" placeholder="you@crypt.com" required></label>
       </div>
       <p class="err" id="err" aria-live="polite"></p>
       <button class="go" id="goBtn" type="submit" disabled>Summon me</button>
@@ -287,13 +287,14 @@ body{background:var(--void);color:var(--parch);font-family:var(--f-hand);
   }
 
   const emailOk = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
-  function validate() { goBtn.disabled = !(chosen && nameEl.value.trim()); }
+  function validate() { goBtn.disabled = !(chosen && nameEl.value.trim() && emailOk(mailEl.value)); }
   nameEl.addEventListener("input", validate); mailEl.addEventListener("input", () => { errEl.textContent = ""; validate(); });
+  mailEl.addEventListener("blur", () => { if (mailEl.value.trim() && !emailOk(mailEl.value)) errEl.textContent = "That email looks off. Check for a missing @ or dot."; });
 
   card.addEventListener("submit", e => {
     e.preventDefault();
     if (!chosen || !nameEl.value.trim()) return;
-    if (mailEl.value.trim() && !emailOk(mailEl.value)) { errEl.textContent = "That email looks off. Check for a missing @ or dot."; mailEl.focus(); return; }
+    if (!emailOk(mailEl.value)) { errEl.textContent = "That email looks off. Check for a missing @ or dot."; mailEl.focus(); return; }
     const d = current;
     bookings[d] = { time: chosen, name: nameEl.value.trim(), email: mailEl.value.trim() };
     save(); closeCard();
